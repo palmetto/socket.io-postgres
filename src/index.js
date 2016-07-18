@@ -14,17 +14,18 @@ function adapter(uri, opt) {
 
   // this server's key
   const uid = uuid.v4();
+  const prefix = config.prefix;
 
   /*
 	 * Adapter constructor
    */
   function PostgreSQL(nsp) {
-    console.log('PostgreSQL');
     Adapter.call(this, nsp);
 
     this.uid = uid;
+    this.prefix = prefix;
 
-    pg.addChannel(`${config.prefix}:${nsp.name}`, this.onmessage.bind(this));
+    pg.addChannel(`${prefix}:${nsp.name}`, this.onmessage.bind(this));
 
     // pg.on('message', )
   }
@@ -70,10 +71,10 @@ function adapter(uri, opt) {
 
       if (options.rooms) {
         options.rooms.forEach((room) => {
-          pg.publish(`${config.prefix}:${packet.nsp}:${room}`, msg);
+          pg.publish(`${prefix}:${packet.nsp}:${room}`, msg);
         });
       } else {
-        pg.publish(`${config.prefix}:${packet.nsp}`, msg);
+        pg.publish(`${prefix}:${packet.nsp}`, msg);
       }
     }
   };
@@ -84,7 +85,7 @@ function adapter(uri, opt) {
   PostgreSQL.prototype.add = function _add(id, room, fn) {
     Adapter.prototype.add.call(this, id, room);
 
-    pg.addChannel(`${config.prefix}:${this.nsp.name}:${room}`, this.onmessage.bind(this));
+    pg.addChannel(`${prefix}:${this.nsp.name}:${room}`, this.onmessage.bind(this));
   };
 
   /*
@@ -98,7 +99,7 @@ function adapter(uri, opt) {
       return process.nextTick(fn.bind(null, null));
     }
 
-    return pg.addChannel(`${config.prefix}:${this.nsp.name}:${room}`, this.onmessage.bind(this));
+    return pg.addChannel(`${prefix}:${this.nsp.name}:${room}`, this.onmessage.bind(this));
   };
 
   /*
@@ -126,7 +127,7 @@ function adapter(uri, opt) {
   };
 
   PostgreSQL.uid = uid;
-  // PostgreSQL.prefix = prefix;
+  PostgreSQL.prefix = prefix;
 
   return PostgreSQL;
 }
