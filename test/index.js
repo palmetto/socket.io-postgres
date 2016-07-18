@@ -2,7 +2,7 @@ var http = require('http').Server;
 var io = require('socket.io');
 var ioc = require('socket.io-client');
 var expect = require('expect.js');
-var adapter = require('../lib');
+var adapter = require('../');
 
 describe('socket.io-postgres', function() {
 
