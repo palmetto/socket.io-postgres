@@ -1,10 +1,14 @@
 {
   "name": "socket.io-postgres",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "PostgreSQL adapter for providing cluster aware messaging with socket.io",
   "main": "index.js",
   "directories": {
     "test": "test"
+  },
+  "dependencies": {
+    "node-uuid": "^1.4.8",
+    "pg-pubsub": "^0.3.0"
   },
   "devDependencies": {
     "babel-cli": "^6.10.1",
@@ -19,17 +23,11 @@
     "compile": "babel -d lib/ src/",
     "prepublish": "npm run compile"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/section6nz/socket.io-postgres.git"
-  },
+  "repository": "https://github.com/palmetto/socket.io-postgres",
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
-    "url": "https://github.com/section6nz/socket.io-postgres/issues"
+    "url": "https://github.com/palmetto/socket.io-postgres/issues"
   },
-  "homepage": "https://github.com/section6nz/socket.io-postgres#readme",
-  "dependencies": {
-    "pg-pubsub": "^0.3.0"
-  }
+  "homepage": "https://github.com/palmetto/socket.io-postgres#readme"
 }
