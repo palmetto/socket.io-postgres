@@ -6,57 +6,57 @@ const pgAdapter = require('../index').default;
 
 //TODO Mock pg-pubsub
 
-describe('socket.io-postgres', function() {
+describe('socket.io-postgres', function () {
 
-  it('broadcasts', function(done){
-    create(function(server1, client1){
-      create(function(server2, client2){
-        client1.on('woot', function(a, b){
+  it('broadcasts', function (done) {
+    create(function (server1, client1) {
+      create(function (server2, client2) {
+        client1.on('woot', function (a, b) {
           expect(a).to.eql([]);
           expect(b).to.eql({ a: 'b' });
           client1.disconnect();
           client2.disconnect();
           done();
         });
-        server2.on('connection', function(c2){
+        server2.on('connection', function (c2) {
           c2.broadcast.emit('woot', [], { a: 'b' });
         });
       });
     });
   });
 
-  it('broadcasts to rooms', function(done){
-    create(function(server1, client1){
-      create(function(server2, client2){
-        create(function(server3, client3){
-          server1.on('connection', function(c1){
+  it('broadcasts to rooms', function (done) {
+    create(function (server1, client1) {
+      create(function (server2, client2) {
+        create(function (server3, client3) {
+          server1.on('connection', function (c1) {
             c1.join('woot');
           });
 
-          server2.on('connection', function(c2){
+          server2.on('connection', function (c2) {
             // does not join, performs broadcast
-            c2.on('do broadcast', function(){
+            c2.on('do broadcast', function () {
               c2.broadcast.to('woot').emit('broadcast');
             });
           });
 
-          server3.on('connection', function(c3){
+          server3.on('connection', function (c3) {
             // does not join, signals broadcast
             client2.emit('do broadcast');
           });
 
-          client1.on('broadcast', function(){
+          client1.on('broadcast', function () {
             client1.disconnect();
             client2.disconnect();
             client3.disconnect();
             setTimeout(done, 100);
           });
 
-          client2.on('broadcast', function(){
+          client2.on('broadcast', function () {
             throw new Error('Not in room');
           });
 
-          client3.on('broadcast', function(){
+          client3.on('broadcast', function () {
             throw new Error('Not in room');
           });
         });
@@ -64,20 +64,20 @@ describe('socket.io-postgres', function() {
     });
   });
 
-  it('doesn\'t broadcast to left rooms', function(done){
-    create(function(server1, client1){
-      create(function(server2, client2){
-        create(function(server3, client3){
-          server1.on('connection', function(c1){
+  it('doesn\'t broadcast to left rooms', function (done) {
+    create(function (server1, client1) {
+      create(function (server2, client2) {
+        create(function (server3, client3) {
+          server1.on('connection', function (c1) {
             c1.join('woot');
             c1.leave('woot');
           });
 
-          server2.on('connection', function(c2){
-            c2.on('do broadcast', function(){
+          server2.on('connection', function (c2) {
+            c2.on('do broadcast', function () {
               c2.broadcast.to('woot').emit('broadcast');
 
-              setTimeout(function() {
+              setTimeout(function () {
                 client1.disconnect();
                 client2.disconnect();
                 client3.disconnect();
@@ -86,11 +86,11 @@ describe('socket.io-postgres', function() {
             });
           });
 
-          server3.on('connection', function(c3){
+          server3.on('connection', function (c3) {
             client2.emit('do broadcast');
           });
 
-          client1.on('broadcast', function(){
+          client1.on('broadcast', function () {
             throw new Error('Should not be in room: ' + client1.id);
           });
         });
@@ -98,11 +98,11 @@ describe('socket.io-postgres', function() {
     });
   });
 
-  it('deletes rooms upon disconnection', function(done){
-    create(function(server, client){
-      server.on('connection', function(c){
+  it('deletes rooms upon disconnection', function (done) {
+    create(function (server, client) {
+      server.on('connection', function (c) {
         c.join('woot');
-        c.on('disconnect', async function() {
+        c.on('disconnect', async function () {
           await new Promise(r => setTimeout(r, 500));
           expect(c.adapter.sids.size).to.be(1);
           expect(c.adapter.rooms.size).to.be(0);
@@ -115,11 +115,11 @@ describe('socket.io-postgres', function() {
   });
 
   // create a pair of socket.io server+client
-  function create(nsp, fn){
+  function create(nsp, fn) {
     var srv = http();
     var sio = io(srv);
     sio.adapter(pgAdapter('postgresql://postgres:yes@localhost/postgres'));
-    srv.listen(function(err){
+    srv.listen(function (err) {
       if (err) throw err; // abort tests
       if ('function' == typeof nsp) {
         fn = nsp;
