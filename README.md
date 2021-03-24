@@ -5,8 +5,8 @@ socket.io-postgres allows you to communicate with socket.io servers easily from 
 
 ```js
 var io = require('socket.io')(3000);
-var pg = require('socket.io-postgres');
-io.adapter(pg('postgresql://'));
+var pgAdapter = require('socket.io-postgres');
+io.adapter(pgAdapter('postgresql://'));
 ```
 
 By running socket.io with the `socket.io-postgres` adapter you can run
@@ -29,9 +29,9 @@ The following options are allowed:
 
 - `prefix`: the name of the prefix to pub/sub events on as prefix (`socket.io`)
 
-### RedisAdapter
+### PostgreSQLAdapter
 
-The redis adapter instances expose the following properties
+The PostgreSQLAdapter instances expose the following properties
 that a regular `Adapter` does not
 
 - `uid`
@@ -42,8 +42,8 @@ that a regular `Adapter` does not
 Subscribe to its `error` event:
 
 ```js
-var redis = require('socket.io-postgres');
-var adapter = redis('postgresql://');
+var pgAdapter = require('socket.io-postgres');
+var adapter = pgAdapter('postgresql://');
 adapter.on('error', function(){});
 ```
 
@@ -67,7 +67,7 @@ prefix + ':' + namespace + ':' + room + '#'
 A number of other libraries adopt this protocol including:
 
 - [socket.io-emitter](https://github.com/socketio/socket.io-emitter)
-- [socket.io-python-emitter](https://github.com/socketio/socket.io-redis)
+- [socket.io-python-emitter](https://github.com/socketio/socket.io-python-emitter)
 
 
 ## License
