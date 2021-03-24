@@ -60,8 +60,8 @@ export class PostgreSQLAdapter extends Adapter {
         uid: this.uid,
         packet,
         options: {
-          rooms: Array.from(options.rooms),
-          except: Array.from(options.except),
+          rooms: Array.from(options.rooms || []),
+          except: Array.from(options.except || []),
           flags: options.flags
         }
       };

@@ -1,6 +1,6 @@
 {
   "name": "socket.io-postgres",
-  "version": "2.0.0",
+  "version": "2.0.0-alpha.1",
   "description": "PostgreSQL adapter for providing cluster aware messaging with socket.io",
   "main": "index.js",
   "directories": {
