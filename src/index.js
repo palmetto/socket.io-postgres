@@ -30,7 +30,7 @@ export class PostgreSQLAdapter extends Adapter {
   }
 
   onmessage(msg) {
-    console.log(`onmessage()`, msg);
+    // console.log(`onmessage()`, msg);
     // ignore its own messages
     if (msg.uid === this.uid) return;
 
@@ -51,7 +51,7 @@ export class PostgreSQLAdapter extends Adapter {
   };
 
   broadcast(packet, options, remote) {
-    console.log('broadcast', packet, options);
+    // console.log('broadcast', packet, options);
     super.broadcast(packet, options);
 
     packet.nsp = packet.nsp || '/';
@@ -69,7 +69,7 @@ export class PostgreSQLAdapter extends Adapter {
 
       if (options.rooms.size > 0) {
         options.rooms.forEach((room) => {
-          console.log(`broadcast to room: '${this.prefix}:${packet.nsp}:${room}'`, msg);
+          // console.log(`broadcast to room: '${this.prefix}:${packet.nsp}:${room}'`, msg);
           this.pg.publish(`${this.prefix}:${packet.nsp}:${room}`, msg);
         });
       } else {
@@ -79,17 +79,16 @@ export class PostgreSQLAdapter extends Adapter {
   };
 
   async add(id, room) {
-    console.log(`add(${id}, ${room})`);
-    // super.add(id, room);
+    // console.log(`add(${id}, ${room})`);
 
     await this.pg.addChannel(`${this.prefix}:${this.nsp.name}:${room}`, this.onmessage.bind(this));
   };
 
   async addAll(id, rooms) {
-    console.log(`addAll(${id}, ${rooms})`);
+    // console.log(`addAll(${id}, ${rooms})`);
 
     if (!rooms) {
-      console.log('no rooms');
+      // console.log('no rooms');
       return;
     }
 
@@ -100,15 +99,11 @@ export class PostgreSQLAdapter extends Adapter {
     await Promise.all(promises);
   };
 
-  disconnectSockets() {
-    console.log("CLOSIGN TIME");
-  }
-
   async del(id, room) {
-    console.log(`del(${id}, ${room})`);
+    // console.log(`del(${id}, ${room})`);
 
     if (!this.rooms.has(room)) {
-      console.log('didnt have room');
+      // console.log('didnt have room');
       return;
     }
 
@@ -118,11 +113,11 @@ export class PostgreSQLAdapter extends Adapter {
   };
 
   async delAll(id) {
-    console.log(`delAll(${id})`);
+    // console.log(`delAll(${id})`);
     const rooms = this.sids.get(id);
 
     if (!rooms) {
-      console.log('no rooms for sid', id);
+      // console.log('no rooms for sid', id);
       return;
     }
 

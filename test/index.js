@@ -104,8 +104,6 @@ describe('socket.io-postgres', function() {
         c.join('woot');
         c.on('disconnect', async function() {
           await new Promise(r => setTimeout(r, 500));
-          console.log('test sids: ', c.adapter.sids);
-          console.log('test rooms: ', c.adapter.rooms);
           expect(c.adapter.sids.size).to.be(1);
           expect(c.adapter.rooms.size).to.be(0);
           client.disconnect();
