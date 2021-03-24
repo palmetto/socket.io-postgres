@@ -1,7 +1,6 @@
 import PG from 'pg-pubsub';
 import uuid from 'node-uuid';
 import { Adapter } from 'socket.io-adapter';
-import async from 'async';
 
 export default function createAdapter(uri, opts) {
   if (typeof uri === 'object') {
