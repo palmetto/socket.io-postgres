@@ -1,5 +1,5 @@
 import PG from 'pg-pubsub';
-import { v4 as uuidv4 } from 'node-uuid';
+import { v4 as uuidv4 } from 'uuid';
 import { Adapter } from 'socket.io-adapter';
 
 export default function createAdapter(uri, opts) {
