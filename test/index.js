@@ -4,12 +4,17 @@ var ioc = require('socket.io-client');
 var expect = require('expect.js');
 const pgAdapter = require('../index').default;
 
+//TODO Mock pg-pubsub
+
 describe('socket.io-postgres', function() {
 
   it('broadcasts', function(done){
     create(function(server1, client1){
+      console.log('server1');
       create(function(server2, client2){
+        console.log('server2');
         client1.on('woot', function(a, b){
+          console.log('rx broadcast');
           expect(a).to.eql([]);
           expect(b).to.eql({ a: 'b' });
           client1.disconnect();
@@ -17,13 +22,14 @@ describe('socket.io-postgres', function() {
           done();
         });
         server2.on('connection', function(c2){
+          console.log('broadcast');
           c2.broadcast.emit('woot', [], { a: 'b' });
         });
       });
     });
   });
 
-  it('broadcasts to rooms', function(done){
+  xit('broadcasts to rooms', function(done){
     create(function(server1, client1){
       create(function(server2, client2){
         create(function(server3, client3){
@@ -62,7 +68,7 @@ describe('socket.io-postgres', function() {
     });
   });
 
-  it('doesn\'t broadcast to left rooms', function(done){
+  xit('doesn\'t broadcast to left rooms', function(done){
     create(function(server1, client1){
       create(function(server2, client2){
         create(function(server3, client3){
@@ -96,7 +102,7 @@ describe('socket.io-postgres', function() {
     });
   });
 
-  it('deletes rooms upon disconnection', function(done){
+  xit('deletes rooms upon disconnection', function(done){
     create(function(server, client){
       server.on('connection', function(c){
         c.join('woot');
@@ -116,7 +122,8 @@ describe('socket.io-postgres', function() {
     var srv = http();
     var sio = io(srv);
     sio.adapter(pgAdapter('postgresql://'));
-    srv.listen(function(err){
+    srv.listen(async function(err){
+      await new Promise(r => setTimeout(r, 500));
       if (err) throw err; // abort tests
       if ('function' == typeof nsp) {
         fn = nsp;

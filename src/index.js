@@ -18,17 +18,18 @@ export class PostgreSQLAdapter extends Adapter {
   constructor(nsp, uri, opts = {}) {
     super(nsp);
 
-    const pg = new PG(uri);
-    
+    this.pg = new PG(uri);
     this.uid = uuid.v4();
     this.prefix = opts.prefix || 'socket-io';
 
-    pg.addChannel(`${prefix}:${nsp.name}`, this.onmessage.bind(this));
+    console.log(`addChannel('${this.prefix}:${nsp.name}')`);
+    this.pg.addChannel(`${this.prefix}:${nsp.name}`, this.onmessage.bind(this));
   }
 
   onmessage(pattern, channel, msg) {
+    console.dir({pattern, channel, msg});
     // ignore its own messages
-    if (msg.uid === uid) return;
+    if (msg.uid === this.uid) return;
 
     const packet = msg.packet;
     const options = msg.options;
@@ -43,21 +44,25 @@ export class PostgreSQLAdapter extends Adapter {
   };
 
   broadcast(packet, options, remote) {
+    console.log('broadcast', packet);
     super.broadcast(packet, options);
+
+    packet.nsp = packet.nsp || '/';
 
     if (!remote) {
       const msg = {
-        uid,
+        uid: this.uid,
         packet,
         options
       };
 
-      if (options.rooms) {
+      if (options.rooms.size > 0) {
         options.rooms.forEach((room) => {
-          pg.publish(`${prefix}:${packet.nsp}:${room}`, msg);
+          this.pg.publish(`${this.prefix}:${packet.nsp}:${room}`, msg);
         });
       } else {
-        pg.publish(`${prefix}:${packet.nsp}`, msg);
+        console.log(`broadcast '${this.prefix}:${packet.nsp}': ${msg}`);
+        this.pg.publish(`${this.prefix}:${packet.nsp}`, msg);
       }
     }
   };
@@ -65,7 +70,7 @@ export class PostgreSQLAdapter extends Adapter {
   add(id, room, fn) {
     super.add(id, room);
 
-    pg.addChannel(`${prefix}:${this.nsp.name}:${room}`, this.onmessage.bind(this));
+    this.pg.addChannel(`${this.prefix}:${this.nsp.name}:${room}`, this.onmessage.bind(this));
   };
 
   del(id, room, fn) {
@@ -75,7 +80,7 @@ export class PostgreSQLAdapter extends Adapter {
       return process.nextTick(fn.bind(null, null));
     }
 
-    return pg.addChannel(`${prefix}:${this.nsp.name}:${room}`, this.onmessage.bind(this));
+    return this.pg.addChannel(`${this.prefix}:${this.nsp.name}:${room}`, this.onmessage.bind(this));
   };
 
   delAll(id, fn) {
