@@ -1,46 +1,32 @@
-const PG = require('pg-pubsub');
-const uuid = require('node-uuid');
-const Adapter = require('socket.io-adapter');
-const async = require('async');
-// const Emitter = require('events').EventEmitter;
+import PG from 'pg-pubsub';
+import uuid from 'node-uuid';
+import { Adapter } from 'socket.io-adapter';
+import async from 'async';
 
-module.exports = adapter;
-
-function adapter(uri, opt) {
-  const config = opt || {};
-  config.prefix = config.prefix || 'socket-io';
-
-  const pg = new PG(uri);
-
-  // this server's key
-  const uid = uuid.v4();
-  const prefix = config.prefix;
-
-  /*
-	 * Adapter constructor
-   */
-  function PostgreSQL(nsp) {
-    Adapter.call(this, nsp);
-
-    this.uid = uid;
-    this.prefix = prefix;
-
-    pg.addChannel(`${prefix}:${nsp.name}`, this.onmessage.bind(this));
-
-    // pg.on('message', )
+export default function createAdapter(uri, opts) {
+  if (typeof uri === 'object') {
+    opts = uri;
+    uri = null;
   }
 
-  /*
-	 * PostgreSQL inherits Adapter
-   */
-  PostgreSQL.prototype.__proto__ = Adapter.prototype; // eslint-disable-line no-proto
-  // Object.setPrototypeOf(PostgreSQL, Adapter);
+  return function (nsp) {
+    return new PostgreSQLAdapter(nsp, uri, opts);
+  };
+}
 
+export class PostgreSQLAdapter extends Adapter {
+  constructor(nsp, uri, opts = {}) {
+    super(nsp);
 
-  /*
-	 * PostgreSQL inherits Adapter
-   */
-  PostgreSQL.prototype.onmessage = function _onmessage(msg) {
+    const pg = new PG(uri);
+    
+    this.uid = uuid.v4();
+    this.prefix = opts.prefix || 'socket-io';
+
+    pg.addChannel(`${prefix}:${nsp.name}`, this.onmessage.bind(this));
+  }
+
+  onmessage(pattern, channel, msg) {
     // ignore its own messages
     if (msg.uid === uid) return;
 
@@ -53,14 +39,11 @@ function adapter(uri, opt) {
     // ignore message for different namespace
     if (packet.nsp !== this.nsp.name) return;
 
-    this.broadcast.apply(this, [packet, options, true]);
+    super.broadcast(packet, options);
   };
 
-  /*
-	 * PostgreSQL inherits Adapter
-   */
-  PostgreSQL.prototype.broadcast = function _broadcast(packet, options, remote) {
-    Adapter.prototype.broadcast.call(this, packet, options);
+  broadcast(packet, options, remote) {
+    super.broadcast(packet, options);
 
     if (!remote) {
       const msg = {
@@ -79,21 +62,14 @@ function adapter(uri, opt) {
     }
   };
 
-  /*
-	 * Subscribe the client to room messages
-   */
-  PostgreSQL.prototype.add = function _add(id, room, fn) {
-    Adapter.prototype.add.call(this, id, room);
+  add(id, room, fn) {
+    super.add(id, room);
 
     pg.addChannel(`${prefix}:${this.nsp.name}:${room}`, this.onmessage.bind(this));
   };
 
-  /*
-	 * Unsubscribe the client to room messages
-   */
-  PostgreSQL.prototype.del = function _del(id, room, fn) {
-    Adapter.prototype.del.call(this, id, room);
-
+  del(id, room, fn) {
+    super.del(id, room);
 
     if (!this.rooms.hasOwnProperty(room)) {
       return process.nextTick(fn.bind(null, null));
@@ -102,10 +78,7 @@ function adapter(uri, opt) {
     return pg.addChannel(`${prefix}:${this.nsp.name}:${room}`, this.onmessage.bind(this));
   };
 
-  /*
-	 * Unsubscribe the client completely
-   */
-  PostgreSQL.prototype.delAll = function _delAll(id, fn) {
+  delAll(id, fn) {
     const rooms = this.sids[id];
     const self = this;
 
@@ -125,9 +98,4 @@ function adapter(uri, opt) {
       return fn ? fn(null) : null;
     });
   };
-
-  PostgreSQL.uid = uid;
-  PostgreSQL.prefix = prefix;
-
-  return PostgreSQL;
 }

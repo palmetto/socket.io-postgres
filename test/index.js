@@ -2,7 +2,7 @@ var http = require('http').Server;
 var io = require('socket.io');
 var ioc = require('socket.io-client');
 var expect = require('expect.js');
-var adapter = require('../');
+const pgAdapter = require('../index').default;
 
 describe('socket.io-postgres', function() {
 
@@ -115,7 +115,7 @@ describe('socket.io-postgres', function() {
   function create(nsp, fn){
     var srv = http();
     var sio = io(srv);
-    sio.adapter(adapter('postgresql://'));
+    sio.adapter(pgAdapter('postgresql://'));
     srv.listen(function(err){
       if (err) throw err; // abort tests
       if ('function' == typeof nsp) {
