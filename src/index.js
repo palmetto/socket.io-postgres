@@ -19,7 +19,7 @@ export class PostgreSQLAdapter extends Adapter {
     super(nsp);
 
     this.nsp = nsp;
-    this.pg = new PG(uri, {log: console.log});
+    this.pg = new PG(uri);
     this.uid = uuid.v4();
     this.prefix = opts.prefix || 'socket-io';
 
@@ -29,8 +29,8 @@ export class PostgreSQLAdapter extends Adapter {
     init();
   }
 
-  onmessage(pattern, channel, msg) {
-    console.log('onmessage!', {pattern, channel, msg});
+  onmessage(msg) {
+    console.log(`onmessage()`, {msg});
     // ignore its own messages
     if (msg.uid === this.uid) return;
 
@@ -61,49 +61,82 @@ export class PostgreSQLAdapter extends Adapter {
 
       if (options.rooms.size > 0) {
         options.rooms.forEach((room) => {
+          console.log(`broadcast to room: '${this.prefix}:${packet.nsp}:${room}': ${msg}`);
           this.pg.publish(`${this.prefix}:${packet.nsp}:${room}`, msg);
         });
       } else {
-        console.log(`broadcast '${this.prefix}:${packet.nsp}': ${msg}`);
         this.pg.publish(`${this.prefix}:${packet.nsp}`, msg);
       }
     }
   };
 
-  add(id, room, fn) {
-    super.add(id, room);
+  async add(id, room) {
+    console.log(`add(${id}, ${room})`);
+    //super.add(id, room);
 
-    this.pg.addChannel(`${this.prefix}:${this.nsp.name}:${room}`, this.onmessage.bind(this));
+    await this.pg.addChannel(`${this.prefix}:${this.nsp.name}:${room}`, this.onmessage.bind(this));
   };
 
-  del(id, room, fn) {
+  async addAll(id, rooms) {
+    console.log(`addAll(${id}, ${rooms})`);
+    const self = this;
+    super.addAll(id, rooms);
+
+    if (!rooms) {
+      console.log('no rooms');
+      return;
+    }
+
+    // rooms.forEach(room => console.log(room));
+    let promises = [];
+    rooms.forEach(room => promises.push(this.add(id, room)));
+    await Promise.all(promises);
+    // return async.forEach(Object.keys(rooms), async (room, next) => {
+    //   console.log('foreach');
+    //   await self.add(id, room);
+    //   next();
+    // }, err => {
+    //   if (err) {
+    //     self.emit('error', err);
+    //     return;
+    //   }
+
+    //   delete self.sids[id];
+    // });
+  };
+
+  del(id, room) {
+    console.log(`del(${id}, ${room})`);
     super.del(id, room);
 
     if (!this.rooms.hasOwnProperty(room)) {
-      return process.nextTick(fn.bind(null, null));
+      return;
     }
 
-    return this.pg.addChannel(`${this.prefix}:${this.nsp.name}:${room}`, this.onmessage.bind(this));
+    return this.pg.removeChannel(`${this.prefix}:${this.nsp.name}:${room}`, this.onmessage.bind(this));
   };
 
-  delAll(id, fn) {
+  delAll(id) {
+    console.log(`delAll(${id})`);
     const rooms = this.sids[id];
     const self = this;
 
     if (!rooms) {
-      return process.nextTick(fn.bind(null, null));
+      console.log('no rooms');
+      return;
     }
 
-    return async.forEach(Object.keys(rooms), (room, next) => {
-      self.del(id, room, next);
+    return async.forEach(Object.keys(rooms), async (room, next) => {
+      await self.del(id, room);
+      next();
     }, err => {
       if (err) {
         self.emit('error', err);
-        return fn ? fn(err) : null;
+        return;
       }
 
       delete self.sids[id];
-      return fn ? fn(null) : null;
+      return;
     });
   };
 }
