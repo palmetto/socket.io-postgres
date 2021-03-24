@@ -18,7 +18,7 @@ export class PostgreSQLAdapter extends Adapter {
   constructor(nsp, uri, opts = {}) {
     super(nsp);
 
-    this.nsp = nsp;
+    // this.nsp = nsp;
     this.pg = new PG(uri);
     this.uid = uuid.v4();
     this.prefix = opts.prefix || 'socket-io';
@@ -38,7 +38,7 @@ export class PostgreSQLAdapter extends Adapter {
     const options = {
       rooms: new Set(msg.options.rooms),
       except: new Set(msg.options.except),
-      flags: new Set(msg.options.flags),
+      flags: msg.options.flags,
     };
 
     // default namespace
@@ -63,7 +63,7 @@ export class PostgreSQLAdapter extends Adapter {
         options: {
           rooms: Array.from(options.rooms),
           except: Array.from(options.except),
-          flags: Array.from(options.flags)
+          flags: options.flags
         }
       };
 
@@ -87,17 +87,22 @@ export class PostgreSQLAdapter extends Adapter {
 
   async addAll(id, rooms) {
     console.log(`addAll(${id}, ${rooms})`);
-    await super.addAll(id, rooms);
 
     if (!rooms) {
       console.log('no rooms');
       return;
     }
 
+    super.addAll(id, rooms);
+
     let promises = [];
     rooms.forEach(room => promises.push(this.add(id, room)));
     await Promise.all(promises);
   };
+
+  disconnectSockets() {
+    console.log("CLOSIGN TIME");
+  }
 
   async del(id, room) {
     console.log(`del(${id}, ${room})`);
@@ -112,15 +117,17 @@ export class PostgreSQLAdapter extends Adapter {
 
     await this.pg.removeChannel(`${this.prefix}:${this.nsp.name}:${room}`, this.onmessage.bind(this));
 
-    await super.del(id, room);
+    console.log('has sid',this.sids.has(id));
+    console.log('room',this.sids.get(room));
+    super.del(id, room);
   };
 
   async delAll(id) {
     console.log(`delAll(${id})`);
-    const rooms = this.sids[id];
+    const rooms = this.sids.get(id);
 
     if (!rooms) {
-      console.log('no rooms');
+      console.log('no rooms for sid', id);
       return;
     }
 
