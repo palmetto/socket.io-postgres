@@ -126,4 +126,8 @@ export class PostgreSQLAdapter extends Adapter {
 
     // await super.delAll(id);
   };
+
+  async close() {
+    await this.pg.close();
+  }
 }
