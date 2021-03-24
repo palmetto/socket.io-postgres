@@ -30,12 +30,16 @@ export class PostgreSQLAdapter extends Adapter {
   }
 
   onmessage(msg) {
-    console.log(`onmessage()`, {msg});
+    console.log(`onmessage()`, msg);
     // ignore its own messages
     if (msg.uid === this.uid) return;
 
     const packet = msg.packet;
-    const options = msg.options;
+    const options = {
+      rooms: new Set(msg.options.rooms),
+      except: new Set(msg.options.except),
+      flags: new Set(msg.options.flags),
+    };
 
     // default namespace
     packet.nsp = packet.nsp || '/';
@@ -47,7 +51,7 @@ export class PostgreSQLAdapter extends Adapter {
   };
 
   broadcast(packet, options, remote) {
-    console.log('broadcast', packet);
+    console.log('broadcast', packet, options);
     super.broadcast(packet, options);
 
     packet.nsp = packet.nsp || '/';
@@ -56,12 +60,16 @@ export class PostgreSQLAdapter extends Adapter {
       const msg = {
         uid: this.uid,
         packet,
-        options
+        options: {
+          rooms: Array.from(options.rooms),
+          except: Array.from(options.except),
+          flags: Array.from(options.flags)
+        }
       };
 
       if (options.rooms.size > 0) {
         options.rooms.forEach((room) => {
-          console.log(`broadcast to room: '${this.prefix}:${packet.nsp}:${room}': ${msg}`);
+          console.log(`broadcast to room: '${this.prefix}:${packet.nsp}:${room}'`, msg);
           this.pg.publish(`${this.prefix}:${packet.nsp}:${room}`, msg);
         });
       } else {
@@ -72,71 +80,54 @@ export class PostgreSQLAdapter extends Adapter {
 
   async add(id, room) {
     console.log(`add(${id}, ${room})`);
-    //super.add(id, room);
+    // super.add(id, room);
 
     await this.pg.addChannel(`${this.prefix}:${this.nsp.name}:${room}`, this.onmessage.bind(this));
   };
 
   async addAll(id, rooms) {
     console.log(`addAll(${id}, ${rooms})`);
-    const self = this;
-    super.addAll(id, rooms);
+    await super.addAll(id, rooms);
 
     if (!rooms) {
       console.log('no rooms');
       return;
     }
 
-    // rooms.forEach(room => console.log(room));
     let promises = [];
     rooms.forEach(room => promises.push(this.add(id, room)));
     await Promise.all(promises);
-    // return async.forEach(Object.keys(rooms), async (room, next) => {
-    //   console.log('foreach');
-    //   await self.add(id, room);
-    //   next();
-    // }, err => {
-    //   if (err) {
-    //     self.emit('error', err);
-    //     return;
-    //   }
-
-    //   delete self.sids[id];
-    // });
   };
 
-  del(id, room) {
+  async del(id, room) {
     console.log(`del(${id}, ${room})`);
-    super.del(id, room);
 
-    if (!this.rooms.hasOwnProperty(room)) {
+    console.log('rooms: ', this.rooms);
+    console.log('sids: ', this.sids);
+
+    if (!this.rooms.has(room)) {
+      console.log('didnt have room');
       return;
     }
 
-    return this.pg.removeChannel(`${this.prefix}:${this.nsp.name}:${room}`, this.onmessage.bind(this));
+    await this.pg.removeChannel(`${this.prefix}:${this.nsp.name}:${room}`, this.onmessage.bind(this));
+
+    await super.del(id, room);
   };
 
-  delAll(id) {
+  async delAll(id) {
     console.log(`delAll(${id})`);
     const rooms = this.sids[id];
-    const self = this;
 
     if (!rooms) {
       console.log('no rooms');
       return;
     }
 
-    return async.forEach(Object.keys(rooms), async (room, next) => {
-      await self.del(id, room);
-      next();
-    }, err => {
-      if (err) {
-        self.emit('error', err);
-        return;
-      }
+    let promises = [];
+    rooms.forEach(room => promises.push(this.del(id, room)));
+    await Promise.all(promises);
 
-      delete self.sids[id];
-      return;
-    });
+    super.delAll(id);
   };
 }
