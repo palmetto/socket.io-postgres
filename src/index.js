@@ -1,5 +1,5 @@
 import PG from 'pg-pubsub';
-import uuid from 'node-uuid';
+import { v4 as uuidv4 } from 'node-uuid';
 import { Adapter } from 'socket.io-adapter';
 
 export default function createAdapter(uri, opts) {
@@ -19,7 +19,7 @@ export class PostgreSQLAdapter extends Adapter {
 
     // this.nsp = nsp;
     this.pg = new PG(uri);
-    this.uid = uuid.v4();
+    this.uid = uuidv4();
     this.prefix = opts.prefix || 'socket-io';
 
     const init = async () => {

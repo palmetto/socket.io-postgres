@@ -1,19 +1,18 @@
 {
   "name": "socket.io-postgres",
-  "version": "2.0.0-alpha.1",
+  "version": "2.0.0-alpha.2",
   "description": "PostgreSQL adapter for providing cluster aware messaging with socket.io",
   "main": "index.js",
   "directories": {
     "test": "test"
   },
   "dependencies": {
-    "node-uuid": "^1.4.8",
     "pg-pubsub": "^0.6.0",
-    "socket.io-adapter": "^2.2.0"
+    "socket.io-adapter": "^2.2.0",
+    "uuid": "^8.3.2"
   },
   "peerDependencies": {
-    "socket.io": "^4.0.0",
-    "socket.io-client": "^4.0.0"
+    "socket.io": "^4.0.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.13.10",
