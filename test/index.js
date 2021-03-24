@@ -123,7 +123,6 @@ describe('socket.io-postgres', function() {
     var sio = io(srv);
     sio.adapter(pgAdapter('postgresql://'));
     srv.listen(async function(err){
-      await new Promise(r => setTimeout(r, 500));
       if (err) throw err; // abort tests
       if ('function' == typeof nsp) {
         fn = nsp;

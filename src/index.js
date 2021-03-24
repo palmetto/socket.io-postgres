@@ -18,16 +18,19 @@ export class PostgreSQLAdapter extends Adapter {
   constructor(nsp, uri, opts = {}) {
     super(nsp);
 
-    this.pg = new PG(uri);
+    this.nsp = nsp;
+    this.pg = new PG(uri, {log: console.log});
     this.uid = uuid.v4();
     this.prefix = opts.prefix || 'socket-io';
 
-    console.log(`addChannel('${this.prefix}:${nsp.name}')`);
-    this.pg.addChannel(`${this.prefix}:${nsp.name}`, this.onmessage.bind(this));
+    const init = async () => {
+      await this.pg.addChannel(`${this.prefix}:${nsp.name}`, this.onmessage.bind(this));
+    }
+    init();
   }
 
   onmessage(pattern, channel, msg) {
-    console.dir({pattern, channel, msg});
+    console.log('onmessage!', {pattern, channel, msg});
     // ignore its own messages
     if (msg.uid === this.uid) return;
 
