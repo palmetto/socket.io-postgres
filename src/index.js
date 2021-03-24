@@ -107,9 +107,6 @@ export class PostgreSQLAdapter extends Adapter {
   async del(id, room) {
     console.log(`del(${id}, ${room})`);
 
-    console.log('rooms: ', this.rooms);
-    console.log('sids: ', this.sids);
-
     if (!this.rooms.has(room)) {
       console.log('didnt have room');
       return;
@@ -117,8 +114,6 @@ export class PostgreSQLAdapter extends Adapter {
 
     await this.pg.removeChannel(`${this.prefix}:${this.nsp.name}:${room}`, this.onmessage.bind(this));
 
-    console.log('has sid',this.sids.has(id));
-    console.log('room',this.sids.get(room));
     super.del(id, room);
   };
 
@@ -135,6 +130,6 @@ export class PostgreSQLAdapter extends Adapter {
     rooms.forEach(room => promises.push(this.del(id, room)));
     await Promise.all(promises);
 
-    super.delAll(id);
+    // await super.delAll(id);
   };
 }

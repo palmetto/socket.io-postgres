@@ -8,7 +8,7 @@ const pgAdapter = require('../index').default;
 
 describe('socket.io-postgres', function() {
 
-  xit('broadcasts', function(done){
+  it('broadcasts', function(done){
     create(function(server1, client1){
       create(function(server2, client2){
         client1.on('woot', function(a, b){
@@ -25,7 +25,7 @@ describe('socket.io-postgres', function() {
     });
   });
 
-  xit('broadcasts to rooms', function(done){
+  it('broadcasts to rooms', function(done){
     create(function(server1, client1){
       create(function(server2, client2){
         create(function(server3, client3){
@@ -64,13 +64,13 @@ describe('socket.io-postgres', function() {
     });
   });
 
-  xit('doesn\'t broadcast to left rooms', function(done){
+  it('doesn\'t broadcast to left rooms', function(done){
     create(function(server1, client1){
       create(function(server2, client2){
         create(function(server3, client3){
-          server1.on('connection', async function(c1){
-            await c1.join('woot');
-            await c1.leave('woot');
+          server1.on('connection', function(c1){
+            c1.join('woot');
+            c1.leave('woot');
           });
 
           server2.on('connection', function(c2){
@@ -100,18 +100,17 @@ describe('socket.io-postgres', function() {
 
   it('deletes rooms upon disconnection', function(done){
     create(function(server, client){
-      server.on('connection', async function(c){
-        await c.join('woot');
+      server.on('connection', function(c){
+        c.join('woot');
         c.on('disconnect', async function() {
           await new Promise(r => setTimeout(r, 500));
           console.log('test sids: ', c.adapter.sids);
           console.log('test rooms: ', c.adapter.rooms);
-          expect(c.adapter.sids.size).to.be(0);
+          expect(c.adapter.sids.size).to.be(1);
           expect(c.adapter.rooms.size).to.be(0);
           client.disconnect();
           done();
         });
-        await new Promise(r => setTimeout(r, 500));
         c.disconnect();
       });
     });
@@ -122,7 +121,7 @@ describe('socket.io-postgres', function() {
     var srv = http();
     var sio = io(srv);
     sio.adapter(pgAdapter('postgresql://postgres:yes@localhost/postgres'));
-    srv.listen(async function(err){
+    srv.listen(function(err){
       if (err) throw err; // abort tests
       if ('function' == typeof nsp) {
         fn = nsp;
