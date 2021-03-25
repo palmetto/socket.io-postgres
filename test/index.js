@@ -8,7 +8,7 @@ const pgAdapter = require('../index').default;
 
 describe('socket.io-postgres', function () {
 
-  xit('broadcasts', function (done) {
+  it('broadcasts', function (done) {
     create(function (server1, client1) {
       create(function (server2, client2) {
         client1.on('woot', function (a, b) {
@@ -64,7 +64,7 @@ describe('socket.io-postgres', function () {
     });
   });
 
-  xit('doesn\'t broadcast to left rooms', function (done) {
+  it('doesn\'t broadcast to left rooms', function (done) {
     create(function (server1, client1) {
       create(function (server2, client2) {
         create(function (server3, client3) {
@@ -98,7 +98,7 @@ describe('socket.io-postgres', function () {
     });
   });
 
-  xit('deletes rooms upon disconnection', function (done) {
+  it('deletes rooms upon disconnection', function (done) {
     create(function (server, client) {
       server.on('connection', function (c) {
         c.join('woot');
@@ -114,7 +114,7 @@ describe('socket.io-postgres', function () {
     });
   });
 
-  // create a pair of socket.io server+client
+  /** create a socket.io server+client pair*/
   function create(nsp, fn) {
     var srv = http();
     var sio = io(srv);
