@@ -1,6 +1,6 @@
 {
   "name": "socket.io-postgres",
-  "version": "2.0.0-alpha.2",
+  "version": "2.0.0-beta.1",
   "description": "PostgreSQL adapter for providing cluster aware messaging with socket.io",
   "main": "index.js",
   "directories": {
@@ -12,7 +12,7 @@
     "uuid": "^8.3.2"
   },
   "peerDependencies": {
-    "socket.io": "^4.0.0"
+    "socket.io": "^3.1.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.13.10",
@@ -20,8 +20,8 @@
     "@babel/preset-env": "^7.13.12",
     "expect.js": "^0.3.1",
     "mocha": "^2.5.3",
-    "socket.io": "^4.0.0",
-    "socket.io-client": "^4.0.0"
+    "socket.io": "^3.1.0",
+    "socket.io-client": "^3.1.0"
   },
   "scripts": {
     "test": "mocha",

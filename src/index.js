@@ -17,7 +17,6 @@ export class PostgreSQLAdapter extends Adapter {
   constructor(nsp, uri, opts = {}) {
     super(nsp);
 
-    // this.nsp = nsp;
     this.pg = new PG(uri);
     this.uid = uuidv4();
     this.prefix = opts.prefix || 'socket-io';
@@ -30,6 +29,7 @@ export class PostgreSQLAdapter extends Adapter {
 
   onmessage(msg) {
     // console.log(`onmessage()`, msg);
+
     // ignore its own messages
     if (msg.uid === this.uid) return;
 
@@ -50,7 +50,7 @@ export class PostgreSQLAdapter extends Adapter {
   };
 
   broadcast(packet, options, remote) {
-    // console.log('broadcast', packet, options);
+    // console.log('broadcast()', packet, options);
     super.broadcast(packet, options);
 
     packet.nsp = packet.nsp || '/';
