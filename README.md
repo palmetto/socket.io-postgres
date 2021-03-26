@@ -13,21 +13,13 @@ By running socket.io with the `socket.io-postgres` adapter you can run
 multiple socket.io instances in different processes or servers that can
 all broadcast and emit events to and from each other.
 
-If you need to emit events to socket.io instances from a non-socket.io
-process, you should use [socket.io-emitter](https://github.com/socketio/socket.io-emitter).
-
 ## API
 
-### adapter(uri[, opts])
+### adapter(connection[, opts])
 
-`uri` is a string, i.e., `postgresql://[user[:password]@][netloc][:port][/dbname][?param1=value1&...]` where your postgres server
-is located. For a list of options see below.
-
-### adapter(opts)
-
-The following options are allowed:
-
-- `prefix`: the name of the prefix to pub/sub events on as prefix (`socket.io`)
+1. `connection` - a URI string, i.e., `postgresql://[user[:password]@][netloc][:port][/dbname][?param1=value1&...]`, or an object. See https://node-postgres.com/features/connecting for more information.
+1. `opts` - the following options are allowed:
+    - `prefix`: the name of the prefix to pub/sub events on as prefix (`socket.io`)
 
 ### PostgreSQLAdapter
 
@@ -66,8 +58,8 @@ prefix + ':' + namespace + ':' + room + '#'
 
 A number of other libraries adopt this protocol including:
 
-- [socket.io-emitter](https://github.com/socketio/socket.io-emitter)
-- [socket.io-python-emitter](https://github.com/socketio/socket.io-python-emitter)
+- [socket.io-redis-emitter](https://github.com/socketio/socket.io-redis-emitter)
+- [socket.io-python-emitter](https://github.com/ziyasal/socket.io-python-emitter)
 
 
 ## License

@@ -2,22 +2,17 @@ import PG from 'pg-pubsub';
 import { v4 as uuidv4 } from 'uuid';
 import { Adapter } from 'socket.io-adapter';
 
-export default function createAdapter(uri, opts) {
-  if (typeof uri === 'object') {
-    opts = uri;
-    uri = null;
-  }
-
+export default function createAdapter(connection, opts) {
   return function (nsp) {
-    return new PostgreSQLAdapter(nsp, uri, opts);
+    return new PostgreSQLAdapter(nsp, connection, opts);
   };
 }
 
 export class PostgreSQLAdapter extends Adapter {
-  constructor(nsp, uri, opts = {}) {
+  constructor(nsp, connection, opts = {}) {
     super(nsp);
 
-    this.pg = new PG(uri);
+    this.pg = new PG(connection);
     this.uid = uuidv4();
     this.prefix = opts.prefix || 'socket-io';
 

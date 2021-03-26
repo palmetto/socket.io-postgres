@@ -118,7 +118,12 @@ describe('socket.io-postgres', function () {
   function create(nsp, fn) {
     var srv = http();
     var sio = io(srv);
-    sio.adapter(pgAdapter('postgresql://postgres:yes@localhost/postgres'));
+    sio.adapter(pgAdapter({
+      host: '',
+      user: '',
+      password: '',
+      database: '',
+    }));
     srv.listen(function (err) {
       if (err) throw err; // abort tests
       if ('function' == typeof nsp) {
