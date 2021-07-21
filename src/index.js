@@ -17,7 +17,12 @@ export class PostgreSQLAdapter extends Adapter {
     this.prefix = opts.prefix || 'socket-io';
 
     const init = async () => {
-      await this.pg.addChannel(`${this.prefix}:${nsp.name}`, this.onmessage.bind(this));
+      const channel = `${this.prefix}:${nsp.name}`;
+      try {
+        await this.pg.addChannel(channel, this.onmessage.bind(this));
+      } catch (err) {
+        console.error(`Error adding channel listener for "${channel}"`, err);
+      }
     }
     init();
   }
@@ -73,9 +78,12 @@ export class PostgreSQLAdapter extends Adapter {
   };
 
   async add(id, room) {
-    // console.log(`add(${id}, ${room})`);
-
-    await this.pg.addChannel(`${this.prefix}:${this.nsp.name}:${room}`, this.onmessage.bind(this));
+    const channel = `${this.prefix}:${this.nsp.name}:${room}`
+    try {
+      await this.pg.addChannel(channel, this.onmessage.bind(this));
+    } catch (err) {
+      console.error(`Error adding channel listener for "${channel}"`, err);
+    }
   };
 
   async addAll(id, rooms) {
@@ -90,8 +98,10 @@ export class PostgreSQLAdapter extends Adapter {
 
     let promises = [];
     rooms.forEach(room => promises.push(this.add(id, room)));
-    await Promise.all(promises);
-  };
+    await Promise.all(promises).catch(err => {
+      console.error(`Error adding channel listener for "${channel}"`, err);
+    });
+  }
 
   async del(id, room) {
     // console.log(`del(${id}, ${room})`);
@@ -117,12 +127,18 @@ export class PostgreSQLAdapter extends Adapter {
 
     let promises = [];
     rooms.forEach(room => promises.push(this.del(id, room)));
-    await Promise.all(promises);
+    await Promise.all(promises).catch(err => {
+      console.error('Error removing multiple channel listeners', err);
+    });;
 
     // await super.delAll(id);
   };
 
   async close() {
-    await this.pg.close();
+    try {
+      await this.pg.close();
+    } catch (err) {
+
+    }
   }
 }
