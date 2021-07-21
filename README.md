@@ -13,6 +13,12 @@ By running socket.io with the `socket.io-postgres` adapter you can run
 multiple socket.io instances in different processes or servers that can
 all broadcast and emit events to and from each other.
 
+## Tests
+
+These are "integration" tests. You will need a real PG database.
+
+Then, run `yarn test`.
+
 ## API
 
 ### adapter(connection[, opts])
@@ -50,7 +56,6 @@ In broadcasting to a single room the channel name is:
 ```
 prefix + ':' + namespace + ':' + room + '#'
 ```
-
 
 - `prefix`: The base channel name. Default value is `socket.io`. Changed by setting `opts.prefix` in `adapter(opts)` constructor
 - `namespace`: See https://github.com/socketio/socket.io#namespace.
