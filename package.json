@@ -27,7 +27,7 @@
     "test": "mocha",
     "compile": "babel -d lib/ src/"
   },
-  "repository": "https://github.com/palmetto/socket.io-postgres",
+  "repository": "git://github.com/palmetto/socket.io-postgres.git",
   "author": "",
   "license": "MIT",
   "bugs": {
