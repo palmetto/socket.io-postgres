@@ -8,18 +8,7 @@ on:
     types: [created]
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
-        with:
-          node-version: 16
-      - run: npm ci
-      - run: npm test
-      - run: npm compile
-  publish-gpr:
-    needs: build
+  build-publish:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -31,6 +20,7 @@ jobs:
           node-version: 16
           registry-url: https://npm.pkg.github.com/
       - run: npm ci
+      - run: npm compile
       - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
