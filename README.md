@@ -17,13 +17,13 @@ all broadcast and emit events to and from each other.
 
 These are "integration" tests. You will need a real PG database.
 
-Then, run `npm test`.
+Then, run `yarn test`.
 
 
 ## Publishing
 
-`npm compile`
-`npm publish`
+`yarn compile`
+`yarn publish`
 
 ## API
 
