@@ -33,5 +33,6 @@
   "bugs": {
     "url": "https://github.com/palmetto/socket.io-postgres/issues"
   },
-  "homepage": "https://github.com/palmetto/socket.io-postgres#readme"
+  "homepage": "https://github.com/palmetto/socket.io-postgres#readme",
+  "packageManager": "yarn@3.2.2"
 }
