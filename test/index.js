@@ -108,12 +108,15 @@ describe('socket.io-postgres', function () {
   function create(nsp, fn) {
     var srv = http();
     var sio = io(srv);
+
+    // TODO Pull these from an ignored .env or something
     sio.adapter(pgAdapter({
       host: '',
       user: '',
       password: '',
       database: '',
     }));
+
     srv.listen(function (err) {
       if (err) throw err; // abort tests
       if ('function' == typeof nsp) {
