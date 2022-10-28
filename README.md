@@ -1,4 +1,8 @@
+## ⚠️ **Warning**
+**This is using socket.io v2, newer versions of socket.io have their own library: https://github.com/socketio/socket.io-postgres-adapter. That should be used when socket.io is upgraded.**
+
 # socket.io-postgres
+
 socket.io-postgres allows you to communicate with socket.io servers easily from non-socket.io processes.
 
 ## How to use

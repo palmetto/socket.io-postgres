@@ -26,6 +26,7 @@ describe('socket.io-postgres', function () {
   });
 
   it('broadcasts to rooms', function (done) {
+    // this.timeout(5000);
     create(function (server1, client1) {
       create(function (server2, client2) {
           server1.on('connection', function (c1) {
@@ -34,13 +35,13 @@ describe('socket.io-postgres', function () {
 
           server2.on('connection', function (c2) {
             // does not join, performs broadcast
-          c2.broadcast.to('woot').emit('broadcast', { a: 'b' });
+            c2.broadcast.to('woot').emit('broadcast', 'message');
           });
 
           client1.on('broadcast', function () {
             client1.disconnect();
             client2.disconnect();
-          done(); // This gets called as far as I can tell but the test still fails.
+            done(); // This gets called as far as I can tell but the test still fails.
 
           // setTimeout(function () {
           // }, 100);
@@ -49,7 +50,6 @@ describe('socket.io-postgres', function () {
           client2.on('broadcast', function () {
             throw new Error('Not in room');
           });
-
       });
     });
   });
